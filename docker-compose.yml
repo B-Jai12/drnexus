@@ -1,0 +1,49 @@
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  ml-service:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./ml-service:/app
+    env_file:
+      - ./ml-service/.env
+    ports:
+      - "8000:8000"
+    command: >
+      sh -lc "pip install -r requirements.txt
+      && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --reload"
+
+  backend:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    ports:
+      - "5000:5000"
+    command: sh -lc "npm install && npm run dev"
+    depends_on:
+      - ml-service
+
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_ML_API_URL=http://localhost:8000
+    command: sh -lc "npm install && npm run dev -- --hostname 0.0.0.0 --port 3000"
+    depends_on:
+      - ml-service
+
+volumes:
+  mongodb_data:

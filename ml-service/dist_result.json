@@ -1,0 +1,126 @@
+{
+  "transactions": [
+    {
+      "desc": "Rahul Sharma",
+      "amount": 150.0,
+      "category": "Personal & UPI"
+    },
+    {
+      "desc": "amita",
+      "amount": 40.0,
+      "category": "Personal & UPI"
+    },
+    {
+      "desc": "krishna tiffin center",
+      "amount": 80.0,
+      "category": "Food & Dining"
+    },
+    {
+      "desc": "shree ram hotel",
+      "amount": 300.0,
+      "category": "Food & Dining"
+    },
+    {
+      "desc": "eat fit online",
+      "amount": 250.0,
+      "category": "Food & Dining"
+    },
+    {
+      "desc": "mess fee",
+      "amount": 1000.0,
+      "category": "Food & Dining"
+    },
+    {
+      "desc": "surya super mart",
+      "amount": 1200.0,
+      "category": "Shopping"
+    },
+    {
+      "desc": "vijaya stores",
+      "amount": 450.0,
+      "category": "Shopping"
+    },
+    {
+      "desc": "local bazaar",
+      "amount": 600.0,
+      "category": "Shopping"
+    },
+    {
+      "desc": "Zomato online",
+      "amount": 200.0,
+      "category": "Food & Dining"
+    },
+    {
+      "desc": "Uber ride",
+      "amount": 150.0,
+      "category": "Transportation"
+    },
+    {
+      "desc": "Amazon pay",
+      "amount": 500.0,
+      "category": "Shopping"
+    },
+    {
+      "desc": "Jio recharge",
+      "amount": 299.0,
+      "category": "Utilities"
+    },
+    {
+      "desc": "Spotify monthly",
+      "amount": 119.0,
+      "category": "Entertainment"
+    },
+    {
+      "desc": "p1 xqy abcd",
+      "amount": 1000.0,
+      "category": "Review"
+    },
+    {
+      "desc": "txn 9912",
+      "amount": 25000.0,
+      "category": "Review"
+    },
+    {
+      "desc": "ACH 5519",
+      "amount": 30.0,
+      "category": "Review"
+    }
+  ],
+  "breakdown": [
+    {
+      "category": "Review",
+      "amount": 26030.0,
+      "percentage": 83.0
+    },
+    {
+      "category": "Shopping",
+      "amount": 2750.0,
+      "percentage": 8.8
+    },
+    {
+      "category": "Food & Dining",
+      "amount": 1830.0,
+      "percentage": 5.8
+    },
+    {
+      "category": "Utilities",
+      "amount": 299.0,
+      "percentage": 1.0
+    },
+    {
+      "category": "Personal & UPI",
+      "amount": 190.0,
+      "percentage": 0.6
+    },
+    {
+      "category": "Transportation",
+      "amount": 150.0,
+      "percentage": 0.5
+    },
+    {
+      "category": "Entertainment",
+      "amount": 119.0,
+      "percentage": 0.4
+    }
+  ]
+}

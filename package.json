@@ -1,0 +1,14 @@
+{
+  "name": "spendsense-ai-root",
+  "version": "1.0.0",
+  "description": "Run all SpendSense AI services concurrently",
+  "scripts": {
+    "start:ml": "cd ml-service && .venv\\Scripts\\activate && uvicorn app.main:app --reload --port 8000",
+    "start:backend": "cd backend && npm run dev",
+    "start:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run start:ml\" \"npm run start:backend\" \"npm run start:frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

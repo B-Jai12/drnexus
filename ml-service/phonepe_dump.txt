@@ -1,0 +1,25 @@
+Shape: (22, 4)
+Cols: ['Date', 'Transaction Details', 'Type', 'Amount']
+
+Row 0: {'Date': 'Feb 20, 2026        Paid to Bhanu 🐥💗', 'Transaction Details': nan, 'Type': 'DEBIT', 'Amount': '₹100'}
+Row 1: {'Date': '04:04 PM', 'Transaction Details': 'Transaction ID T2602201604013411987123 UTR No. 356122879564', 'Type': nan, 'Amount': nan}
+Row 2: {'Date': nan, 'Transaction Details': 'Paid by        XXXXXXXXXXX0385', 'Type': nan, 'Amount': nan}
+Row 3: {'Date': 'Feb 20, 2026        Paid to ISTHARA MALLAREDDY', 'Transaction Details': nan, 'Type': 'DEBIT', 'Amount': '₹40'}
+Row 4: {'Date': '03:19 PM', 'Transaction Details': 'Transaction ID T2602201519395171169117 UTR No. 264876037207', 'Type': nan, 'Amount': nan}
+Row 5: {'Date': nan, 'Transaction Details': 'Paid by        XXXXXXXXXXX0385', 'Type': nan, 'Amount': nan}
+Row 6: {'Date': 'Feb 20, 2026        Payment to Google', 'Transaction Details': nan, 'Type': 'DEBIT', 'Amount': '₹2'}
+Row 7: {'Date': '02:21 PM', 'Transaction Details': 'Transaction ID OLEX2602201421513648191925 UTR No. 376299790516', 'Type': nan, 'Amount': nan}
+Row 8: {'Date': nan, 'Transaction Details': 'Paid by        XXXXXXXXXXX0385', 'Type': nan, 'Amount': nan}
+Row 9: {'Date': 'Feb 20, 2026        Paid to ISTHARA PARKS PRIVATE LIMITED', 'Transaction Details': nan, 'Type': 'DEBIT', 'Amount': '₹540'}
+Row 10: {'Date': '01:05 PM', 'Transaction Details': 'Transaction ID T2602201305490528818804 UTR No. 100963283142', 'Type': nan, 'Amount': nan}
+Row 11: {'Date': nan, 'Transaction Details': 'Paid by        XXXXXXXXXXX0385', 'Type': nan, 'Amount': nan}
+Row 12: {'Date': 'Feb 20, 2026        Received from Manoj Kumar', 'Transaction Details': nan, 'Type': 'CREDIT', 'Amount': '₹260'}
+Row 13: {'Date': '01:03 PM', 'Transaction Details': 'Transaction ID T2602201303457309277060 UTR No. 507640042890', 'Type': nan, 'Amount': nan}
+Row 14: {'Date': nan, 'Transaction Details': 'Credited to        XXXXXXXXXXX0385', 'Type': nan, 'Amount': nan}
+Row 15: {'Date': 'Feb 20, 2026        Received from Amit Yadav', 'Transaction Details': nan, 'Type': 'CREDIT', 'Amount': '₹130'}
+Row 16: {'Date': '01:03 PM', 'Transaction Details': 'Transaction ID T2602201303336338729456 UTR No. 501610077864', 'Type': nan, 'Amount': nan}
+Row 17: {'Date': nan, 'Transaction Details': 'Credited to        XXXXXXXXXXX0385', 'Type': nan, 'Amount': nan}
+Row 18: {'Date': 'Feb 19, 2026        Paid to ASHWINI  CHOKKARAPU', 'Transaction Details': nan, 'Type': 'DEBIT', 'Amount': '₹40'}
+Row 19: {'Date': '06:01 PM', 'Transaction Details': 'Transaction ID T2602191801309406306942 UTR No. 736425817464', 'Type': nan, 'Amount': nan}
+Row 20: {'Date': nan, 'Transaction Details': 'Paid by        XXXXXXXXXXX0385', 'Type': nan, 'Amount': nan}
+Row 21: {'Date': 'Page 1 of 14\nThis is a system generated statement. For any queries, contact us at https://support.phonepe.com/statement.', 'Transaction Details': nan, 'Type': nan, 'Amount': nan}
