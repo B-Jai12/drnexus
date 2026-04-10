@@ -28,7 +28,7 @@ pnpm-debug.log*
 
 # ML artifacts / uploads
 **/temp_uploads/
-**/models/
+ml-service/models/
 
 # --- OS / IDE ---
 .DS_Store
