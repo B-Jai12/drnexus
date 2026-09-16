@@ -79,25 +79,37 @@ export function parseCsvText(csvText: string): Array<{ date: string; description
   const lines = csvText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   if (lines.length < 2) return [];
 
+  // Detect delimiter
+  const firstLine = lines[0];
+  let delimiter = ",";
+  if (firstLine.includes("\t")) delimiter = "\t";
+  else if (firstLine.split(";").length > firstLine.split(",").length) delimiter = ";";
+  else if (firstLine.split("|").length > firstLine.split(",").length) delimiter = "|";
+
   // Parse header
-  const header = lines[0].split(",").map(c => c.replace(/^["']|["']$/g, "").trim().toLowerCase());
+  const header = lines[0].split(delimiter).map(c => c.replace(/^["']|["']$/g, "").trim().toLowerCase());
   
   const dateIdx = header.findIndex(h => h.includes("date"));
-  const descIdx = header.findIndex(h => h.includes("desc") || h.includes("particular") || h.includes("merchant") || h.includes("detail") || h.includes("narration"));
+  const descIdx = header.findIndex(h => h.includes("desc") || h.includes("particular") || h.includes("merchant") || h.includes("detail") || h.includes("narration") || h.includes("remark") || h.includes("name"));
   const amountIdx = header.findIndex(h => h === "amount" || h.includes("amt") || h.includes("value"));
-  const debitIdx = header.findIndex(h => h.includes("debit") || h.includes("withdrawal") || h.includes("dr"));
-  const creditIdx = header.findIndex(h => h.includes("credit") || h.includes("deposit") || h.includes("cr"));
-  const typeIdx = header.findIndex(h => h === "type" || h.includes("txn type") || h.includes("dr/cr"));
+  const debitIdx = header.findIndex(h => h.includes("debit") || h.includes("withdrawal") || h.includes("dr") || h.includes("spent"));
+  const creditIdx = header.findIndex(h => h.includes("credit") || h.includes("deposit") || h.includes("cr") || h.includes("received"));
+  const typeIdx = header.findIndex(h => h === "type" || h.includes("txn type") || h.includes("dr/cr") || h.includes("transaction type"));
 
   const rows: Array<{ date: string; description: string; type: "DEBIT" | "CREDIT"; amount: number }> = [];
 
   for (let i = 1; i < lines.length; i++) {
-    // Simple CSV line splitter respecting quotes
-    const cells = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(",");
-    const cleanCells = cells.map(c => c.replace(/^["']|["']$/g, "").trim());
+    // Delimiter line splitter respecting quotes
+    let cleanCells: string[] = [];
+    if (delimiter === ",") {
+      const cells = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(",");
+      cleanCells = cells.map(c => c.replace(/^["']|["']$/g, "").trim());
+    } else {
+      cleanCells = lines[i].split(delimiter).map(c => c.replace(/^["']|["']$/g, "").trim());
+    }
 
-    const dateVal = dateIdx !== -1 ? cleanCells[dateIdx] : new Date().toISOString().slice(0, 10);
-    const descVal = descIdx !== -1 ? cleanCells[descIdx] : "Transaction";
+    const dateVal = dateIdx !== -1 && cleanCells[dateIdx] ? cleanCells[dateIdx] : new Date().toISOString().slice(0, 10);
+    const descVal = descIdx !== -1 && cleanCells[descIdx] ? cleanCells[descIdx] : "Transaction";
     
     let type: "DEBIT" | "CREDIT" = "DEBIT";
     let amount = 0;

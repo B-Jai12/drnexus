@@ -17,18 +17,23 @@ async function parseJsonSafe(response: Response) {
 
 export function getApiBaseUrl(): string {
   const isBrowser = typeof window !== "undefined";
-  const isLocalhost =
-    isBrowser &&
-    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+  if (isBrowser) {
+    const isLocalhost =
+      window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
-  const envUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
+    // In a production browser (e.g. Vercel deployment), ALWAYS use relative URL ("")
+    // This routes all requests to same-origin /api/... endpoints hosted directly on Vercel,
+    // completely eliminating CORS errors, unreachable external hosts, and mixed content issues.
+    if (!isLocalhost) {
+      return "";
+    }
 
-  // If in a deployed production browser (e.g. Vercel) and env points to localhost, use relative URL
-  if (isBrowser && !isLocalhost && (!envUrl || envUrl.includes("localhost"))) {
-    return "";
+    const envUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
+    return envUrl || "http://localhost:5000";
   }
 
-  return envUrl || (isBrowser ? "" : "http://localhost:5000");
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
+  return envUrl || "http://localhost:5000";
 }
 
 export async function apiGet<T>(path: string, query?: Record<string, string | number | undefined>): Promise<T> {
