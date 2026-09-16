@@ -81,13 +81,7 @@ export default function UploadPage() {
       setErrorMsg(msg)
       setState("error")
 
-      if (msg.includes("Failed to fetch")) {
-        toast.error("Cannot connect to backend", {
-          description: `Make sure ML service is running on ${ML_API_BASE_URL}`
-        })
-      } else {
-        toast.error("Processing failed", { description: msg })
-      }
+      toast.error("Processing failed", { description: msg })
     }
   }, [])
 

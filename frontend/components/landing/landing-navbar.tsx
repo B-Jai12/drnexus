@@ -108,12 +108,12 @@ export function LandingNavbar() {
           <div className="flex items-center gap-3">
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
               <Button asChild variant="ghost" size="sm" className="bg-transparent hidden sm:inline-flex">
-                <Link href="/auth/login">Log in</Link>
+                <Link href="/dashboard/overview">Dashboard</Link>
               </Button>
             </motion.div>
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
               <Button asChild size="sm" className="hidden sm:inline-flex">
-                <Link href="/auth/register">Get Started</Link>
+                <Link href="/dashboard/upload">Upload Statement</Link>
               </Button>
             </motion.div>
             <Button
@@ -156,10 +156,10 @@ export function LandingNavbar() {
               ))}
               <div className="flex gap-2 pt-2 px-4">
                 <Button asChild variant="outline" size="sm" className="flex-1 bg-transparent">
-                  <Link href="/auth/login">Log in</Link>
+                  <Link href="/dashboard/overview">Dashboard</Link>
                 </Button>
                 <Button asChild size="sm" className="flex-1">
-                  <Link href="/auth/register">Get Started</Link>
+                  <Link href="/dashboard/upload">Upload</Link>
                 </Button>
               </div>
             </nav>

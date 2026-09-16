@@ -1,5 +1,4 @@
-const Transaction = require("../models/Transaction");
-const UserInsight = require("../models/UserInsight");
+const { query, initDatabase } = require("../db/supabase");
 
 function toNumber(value, fallback = 0) {
   const n = Number(value);
@@ -56,7 +55,7 @@ function mapMlTransaction(txn, defaultSource = "upload") {
     date: parsedDate,
     merchant: String(txn?.merchant || txn?.description || "Unknown").trim(),
     description: String(txn?.description || txn?.merchant || "Unknown").trim(),
-    category: String(txn?.category || "Misc").trim(),
+    category: String(txn?.category || "Personal & UPI").trim(),
     type: normalizeType(txn?.type),
     amount: toNumber(txn?.amount, 0),
     confidence: toNumber(txn?.confidence, 0),
@@ -70,7 +69,8 @@ function mapMlTransaction(txn, defaultSource = "upload") {
   };
 }
 
-async function saveMlTransactionsForUser({ userId, filename, mlPayload, mode = "replace-range" }) {
+async function saveMlTransactionsForUser({ userId = "demo-user", filename, mlPayload, mode = "replace-range" }) {
+  await initDatabase();
   const transactions = Array.isArray(mlPayload?.transactions) ? mlPayload.transactions : [];
   if (!transactions.length) {
     return { saved: 0, deleted: 0, dateRange: null };
@@ -91,44 +91,98 @@ async function saveMlTransactionsForUser({ userId, filename, mlPayload, mode = "
     const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
     dateRange = { from: minDate, to: maxDate };
 
-    const deleteResult = await Transaction.deleteMany({
-      userId,
-      date: { $gte: minDate, $lte: maxDate },
-    });
-    deletedCount = deleteResult.deletedCount || 0;
+    const deleteRes = await query(
+      "DELETE FROM transactions WHERE user_id = $1 AND date >= $2 AND date <= $3",
+      [userId, minDate.toISOString(), maxDate.toISOString()]
+    );
+    deletedCount = deleteRes.rowCount || 0;
   }
 
-  const insertResult = await Transaction.insertMany(mapped);
+  // Batch insert into PostgreSQL
+  let savedCount = 0;
+  for (const t of mapped) {
+    await query(
+      `INSERT INTO transactions (
+        user_id, date, merchant, description, category, type, amount,
+        confidence, is_anomaly, anomaly_severity, z_score, is_recurring,
+        month, source, currency, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW())`,
+      [
+        t.userId,
+        t.date.toISOString(),
+        t.merchant,
+        t.description,
+        t.category,
+        t.type,
+        t.amount,
+        t.confidence,
+        t.isAnomaly,
+        t.anomalySeverity,
+        t.zScore,
+        t.isRecurring,
+        t.month,
+        t.source,
+        t.currency,
+      ]
+    );
+    savedCount++;
+  }
+
   return {
-    saved: insertResult.length,
+    saved: savedCount,
     deleted: deletedCount,
     dateRange,
   };
 }
 
-module.exports = {
-  saveMlTransactionsForUser,
-};
+async function saveMlInsightForUser({ userId = "demo-user", filename, mlPayload }) {
+  await initDatabase();
+  const summary = mlPayload?.summary || {};
+  const monthlyOverview = mlPayload?.monthly_overview || mlPayload?.monthlyOverview || [];
+  const forecast = mlPayload?.forecast || {};
+  const recommendations = mlPayload?.recommendations || {};
+  const anomalies = mlPayload?.anomalies || [];
+  const recurringMerchants = mlPayload?.recurring_merchants || mlPayload?.recurringMerchants || [];
+  const mlInfo = mlPayload?.ml_info || mlPayload?.mlInfo || {};
+  const transactionCount = Number(mlPayload?.transaction_count ?? mlPayload?.summary?.transaction_count ?? 0);
 
-async function saveMlInsightForUser({ userId, filename, mlPayload }) {
-  const update = {
-    sourceFilename: filename || "",
-    summary: mlPayload?.summary || {},
-    monthlyOverview: mlPayload?.monthly_overview || mlPayload?.monthlyOverview || [],
-    forecast: mlPayload?.forecast || {},
-    recommendations: mlPayload?.recommendations || {},
-    anomalies: mlPayload?.anomalies || [],
-    recurringMerchants: mlPayload?.recurring_merchants || mlPayload?.recurringMerchants || [],
-    mlInfo: mlPayload?.ml_info || mlPayload?.mlInfo || {},
-    transactionCount: Number(mlPayload?.transaction_count ?? mlPayload?.summary?.transaction_count ?? 0),
-    importedAt: new Date(),
-  };
+  const res = await query(
+    `INSERT INTO user_insights (
+      user_id, source_filename, summary, monthly_overview, forecast,
+      recommendations, anomalies, recurring_merchants, ml_info, transaction_count,
+      imported_at, updated_at
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+    ON CONFLICT (user_id) DO UPDATE SET
+      source_filename = EXCLUDED.source_filename,
+      summary = EXCLUDED.summary,
+      monthly_overview = EXCLUDED.monthly_overview,
+      forecast = EXCLUDED.forecast,
+      recommendations = EXCLUDED.recommendations,
+      anomalies = EXCLUDED.anomalies,
+      recurring_merchants = EXCLUDED.recurring_merchants,
+      ml_info = EXCLUDED.ml_info,
+      transaction_count = EXCLUDED.transaction_count,
+      imported_at = NOW(),
+      updated_at = NOW()
+    RETURNING *`,
+    [
+      userId,
+      filename || "",
+      JSON.stringify(summary),
+      JSON.stringify(monthlyOverview),
+      JSON.stringify(forecast),
+      JSON.stringify(recommendations),
+      JSON.stringify(anomalies),
+      JSON.stringify(recurringMerchants),
+      JSON.stringify(mlInfo),
+      transactionCount,
+    ]
+  );
 
-  return UserInsight.findOneAndUpdate(
-    { userId },
-    { $set: update },
-    { new: true, upsert: true }
-  ).lean();
+  return res.rows[0];
 }
 
-module.exports.saveMlInsightForUser = saveMlInsightForUser;
+module.exports = {
+  saveMlTransactionsForUser,
+  saveMlInsightForUser,
+};

@@ -5,8 +5,13 @@ import re
 import traceback
 from datetime import datetime
 import sys
-import io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 
 
 # ─── Public entry point ────────────────────────────────────────────────────────
@@ -569,8 +574,12 @@ def _find_col(columns, keywords, exclude=None):
         if any(col_lower == ex for ex in exclude):
             continue
         for kw in keywords:
-            if kw in col_lower:
-                return col
+            if len(kw) <= 3:
+                if re.search(r'\b' + re.escape(kw) + r'\b', col_lower):
+                    return col
+            else:
+                if kw in col_lower:
+                    return col
     return None
 
 

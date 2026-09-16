@@ -1,15 +1,18 @@
 const express = require("express");
 const { getRecommendationsResponse } = require("../src/fixtures/apiFixtures");
-const { connectToDatabase } = require("../src/db/connect");
-const UserInsight = require("../src/models/UserInsight");
+const { connectToDatabase, query } = require("../src/db/connect");
 
 const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
     await connectToDatabase();
-    const userId = req.userId;
-    const insight = await UserInsight.findOne({ userId }).sort({ importedAt: -1 }).lean();
+    const userId = req.userId || "demo-user";
+    const result = await query(
+      "SELECT * FROM user_insights WHERE user_id = $1 ORDER BY imported_at DESC LIMIT 1",
+      [userId]
+    );
+    const insight = result.rows[0];
 
     if (insight?.recommendations && Array.isArray(insight.recommendations.items)) {
       const items = insight.recommendations.items.map((item) => ({

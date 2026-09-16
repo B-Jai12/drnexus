@@ -1,18 +1,25 @@
 const express = require("express");
 const { getPredictionsResponse } = require("../src/fixtures/apiFixtures");
-const { connectToDatabase } = require("../src/db/connect");
-const UserInsight = require("../src/models/UserInsight");
+const { connectToDatabase, query } = require("../src/db/connect");
 
 const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
     await connectToDatabase();
-    const userId = req.userId;
-    const insight = await UserInsight.findOne({ userId }).sort({ importedAt: -1 }).lean();
+    const userId = req.userId || "demo-user";
+    const result = await query(
+      "SELECT * FROM user_insights WHERE user_id = $1 ORDER BY imported_at DESC LIMIT 1",
+      [userId]
+    );
+    const insight = result.rows[0];
 
     if (insight?.forecast && Object.keys(insight.forecast).length > 0) {
-      const monthlyOverview = Array.isArray(insight?.monthlyOverview) ? insight.monthlyOverview : [];
+      const monthlyOverview = Array.isArray(insight?.monthly_overview)
+        ? insight.monthly_overview
+        : Array.isArray(insight?.monthlyOverview)
+        ? insight.monthlyOverview
+        : [];
       const forecast = monthlyOverview.map((m) => ({
         month: m.month,
         actual: Number(m.expenses || 0),

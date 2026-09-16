@@ -56,10 +56,10 @@ npm run dev
 ## ✅ Verification Checklist
 
 Use this quick checklist to confirm everything is running smoothly:
-- `[ ]` **MongoDB Atlas connected** (Verify successful connection message in the *backend* terminal logs)
-- `[ ]` **ML service loaded model** (Verify `{"status": "ok"}` or similar at `http://localhost:8000/api/health`)
+- `[ ]` **Supabase PostgreSQL connected** (Verify `[db] Supabase PostgreSQL tables initialized successfully` in backend terminal logs)
+- `[ ]` **ML service loaded model** (Verify `{"status": "ok"}` at `http://localhost:8000/api/health`)
 - `[ ]` **Backend endpoints responding** (Verify success at `http://localhost:5000/api/health`)
-- `[ ]` **Frontend loads dashboard** (You can see the UI at `http://localhost:3000`)
+- `[ ]` **Frontend loads dashboard** (You can see the UI at `http://localhost:3000/dashboard/overview` directly without login)
 
 ---
 

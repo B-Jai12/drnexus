@@ -10,16 +10,15 @@ Real machine learning pipeline using:
 """
 
 import sys
-import io
 
-if hasattr(sys.stdout, "buffer"):
+if hasattr(sys.stdout, "reconfigure"):
     try:
-        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     except Exception:
         pass
-if hasattr(sys.stderr, "buffer"):
+if hasattr(sys.stderr, "reconfigure"):
     try:
-        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     except Exception:
         pass
 

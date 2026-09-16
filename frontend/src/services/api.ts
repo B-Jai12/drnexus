@@ -1,6 +1,3 @@
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://localhost:5000";
-
 export class ApiError extends Error {
   status: number;
 
@@ -18,8 +15,27 @@ async function parseJsonSafe(response: Response) {
   }
 }
 
+export function getApiBaseUrl(): string {
+  const isBrowser = typeof window !== "undefined";
+  const isLocalhost =
+    isBrowser &&
+    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
+
+  // If in a deployed production browser (e.g. Vercel) and env points to localhost, use relative URL
+  if (isBrowser && !isLocalhost && (!envUrl || envUrl.includes("localhost"))) {
+    return "";
+  }
+
+  return envUrl || (isBrowser ? "" : "http://localhost:5000");
+}
+
 export async function apiGet<T>(path: string, query?: Record<string, string | number | undefined>): Promise<T> {
-  const url = new URL(`${API_BASE_URL}${path}`);
+  const baseUrl = getApiBaseUrl();
+  const rawUrl = `${baseUrl}${path}`;
+  const url = baseUrl ? new URL(rawUrl) : new URL(path, window.location.origin);
+
   if (query) {
     Object.entries(query).forEach(([k, v]) => {
       if (v !== undefined && v !== null && v !== "") {
@@ -39,13 +55,14 @@ export async function apiGet<T>(path: string, query?: Record<string, string | nu
       signal: controller.signal,
     });
   } catch (error: any) {
-    if (error.name === 'AbortError') {
-      throw new ApiError('Request timed out after 15 seconds', 408);
+    if (error.name === "AbortError") {
+      throw new ApiError("Request timed out after 15 seconds", 408);
     }
     throw error;
   } finally {
     clearTimeout(timeoutId);
   }
+
   if (!response.ok) {
     const payload = await parseJsonSafe(response);
     throw new ApiError(payload?.message || payload?.detail || `Request failed: ${response.status}`, response.status);
@@ -54,4 +71,4 @@ export async function apiGet<T>(path: string, query?: Record<string, string | nu
   return response.json() as Promise<T>;
 }
 
-export { API_BASE_URL };
+export const API_BASE_URL = getApiBaseUrl();
