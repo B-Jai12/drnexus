@@ -225,13 +225,15 @@ export default function UploadPage() {
                   Could not process your statement.
                 </p>
                 {errorMsg && (
-                  <p className="text-xs text-red-400/80 mb-6 font-mono bg-red-500/5 rounded-lg px-3 py-2">
+                  <p className="text-xs text-red-400/80 mb-4 font-mono bg-red-500/5 rounded-lg px-3 py-2">
                     {errorMsg}
                   </p>
                 )}
                 <p className="text-xs text-muted-foreground mb-6">
-                  Make sure your Python backend is running on{" "}
-                  <code className="text-primary">{ML_API_BASE_URL}</code>
+                  {typeof window !== "undefined" &&
+                  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+                    ? `Make sure your backend is running on ${ML_API_BASE_URL}`
+                    : "Ensure your statement is a valid CSV or supported format with Date, Description, and Amount."}
                 </p>
                 <Button onClick={() => { setState("idle"); setErrorMsg("") }}>Try Again</Button>
               </motion.div>
