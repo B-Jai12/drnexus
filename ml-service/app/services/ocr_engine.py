@@ -67,21 +67,110 @@ def extract_transactions(file_path: str) -> List[Dict]:
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PDF HANDLING
+# ── Gemini Client Initialization ───────────────────────────────────────────────
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+_gemini_client = None
+if GEMINI_API_KEY:
+    try:
+        from google import genai
+        _gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+    except Exception as _e:
+        print(f"[OCR] Could not initialize Gemini client: {_e}")
+
+
+def _gemini_extract_multimodal(file_path: str, mime_type: str) -> List[Dict]:
+    """
+    Extract transactions from image or PDF using Gemini 2.5 Flash multimodal capabilities.
+    Works for receipts, screenshots, handwritten/scanned bank statements without requiring Poppler or GCP Vision billing.
+    """
+    if not _gemini_client:
+        return []
+
+    try:
+        from google.genai import types
+        import json
+
+        with open(file_path, "rb") as f:
+            file_bytes = f.read()
+
+        prompt = """
+You are an expert financial document and bank statement parser.
+Extract ALL financial transactions visible in this document/image.
+Return a valid JSON array of objects with the exact schema:
+[
+  {
+    "date": "YYYY-MM-DD",
+    "description": "Merchant, recipient, or narration name",
+    "amount": 123.45,
+    "type": "DEBIT" or "CREDIT"
+  }
+]
+Rules:
+- "date": String in ISO format YYYY-MM-DD. If year is missing, assume 2026. If date is not visible, return null.
+- "description": Clean merchant or payee name (e.g. "Zomato", "Swiggy", "Electric Bill", "Salary").
+- "amount": Positive float number representing the transaction amount (remove currency symbols like ₹, $, commas).
+- "type": Either "DEBIT" (expenses/sent/withdrawal) or "CREDIT" (received/income/deposit).
+- If no transactions are found, return [].
+Output ONLY the JSON array without any markdown wrappers or commentary.
+"""
+        part = types.Part.from_bytes(data=file_bytes, mime_type=mime_type)
+        response = _gemini_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[part, prompt],
+            config=types.GenerateContentConfig(
+                temperature=0.1,
+                response_mime_type="application/json"
+            )
+        )
+
+        clean_text = (response.text or "").strip()
+        if not clean_text:
+            return []
+
+        parsed = json.loads(clean_text)
+        if isinstance(parsed, list):
+            valid_results = []
+            for item in parsed:
+                amt = _parse_amount(item.get("amount"))
+                if amt and amt > 0:
+                    valid_results.append({
+                        "date": _parse_date_str(item.get("date")),
+                        "description": str(item.get("description") or "Transaction").strip(),
+                        "amount": amt,
+                        "type": _normalize_type(item.get("type")),
+                    })
+            print(f"[OCR] Gemini multimodal extracted {len(valid_results)} transactions")
+            return valid_results
+    except Exception as e:
+        print(f"[OCR] Gemini multimodal extraction failed: {e}")
+        traceback.print_exc()
+
+    return []
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PDF HANDLING
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _handle_pdf(file_path: str) -> List[Dict]:
     """
     1. Try pdfplumber (fast — works for digital/native PDFs).
-    2. If no usable text found, convert pages to images and run Vision OCR.
+    2. If no usable transactions found, try Gemini direct PDF parsing (scanned PDFs without needing Poppler).
+    3. If Gemini is unavailable, fallback to pdf2image + Vision OCR.
     """
     print("[OCR] Trying pdfplumber on PDF...")
     results = _pdfplumber_extract(file_path)
 
-    if results:
+    if results and len(results) > 0:
         print(f"[OCR] pdfplumber succeeded: {len(results)} transactions")
         return results
 
-    print("[OCR] pdfplumber found nothing — switching to Vision OCR (scanned PDF)")
+    print("[OCR] pdfplumber found nothing — trying Gemini Multimodal PDF extraction...")
+    gemini_results = _gemini_extract_multimodal(file_path, "application/pdf")
+    if gemini_results and len(gemini_results) > 0:
+        return gemini_results
+
+    print("[OCR] Switching to Vision OCR (scanned PDF)")
     return _vision_pdf(file_path)
 
 
@@ -113,7 +202,6 @@ def _vision_pdf(file_path: str) -> List[Dict]:
         from pdf2image import convert_from_path
     except ImportError:
         print("[OCR] pdf2image not installed. Run: pip install pdf2image")
-        print("[OCR] Also install poppler: https://poppler.freedesktop.org/")
         return []
 
     if not VISION_API_KEY:
@@ -135,7 +223,6 @@ def _vision_pdf(file_path: str) -> List[Dict]:
 
     except Exception as e:
         print(f"[OCR] PDF→image conversion error: {e}")
-        traceback.print_exc()
 
     print(f"[OCR] Vision PDF total: {len(results)} transactions")
     return results
@@ -146,14 +233,30 @@ def _vision_pdf(file_path: str) -> List[Dict]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _handle_image(file_path: str) -> List[Dict]:
-    """Run Google Cloud Vision OCR directly on an image file."""
-    if not VISION_API_KEY:
-        print("[OCR] ERROR: GOOGLE_VISION_API_KEY (or GOOGLE_CLOUD_VISION_API_KEY) not set in .env")
-        return []
+    """
+    1. Try Gemini Vision directly (reliable, handles receipts, UPI screenshots, scanned statements).
+    2. Fallback to Google Cloud Vision if Gemini unavailable.
+    """
+    ext = os.path.splitext(file_path)[1].lower()
+    mime_map = {
+        ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+        ".png": "image/png",  ".webp": "image/webp",
+        ".bmp": "image/bmp",  ".tiff": "image/tiff", ".tif": "image/tiff",
+    }
+    mime_type = mime_map.get(ext, "image/png")
 
-    print(f"[OCR] Running Vision OCR on image: {file_path}")
+    print(f"[OCR] Running Gemini Vision extraction on {file_path} ({mime_type})...")
+    gemini_results = _gemini_extract_multimodal(file_path, mime_type)
+    if gemini_results and len(gemini_results) > 0:
+        return gemini_results
+
+    if not VISION_API_KEY:
+        print("[OCR] Warning: GOOGLE_VISION_API_KEY not set or Gemini handled it.")
+        return gemini_results
+
+    print(f"[OCR] Running Google Cloud Vision OCR fallback on image: {file_path}")
     results = _vision_ocr_image(file_path)
-    print(f"[OCR] Image OCR found: {len(results)} transactions")
+    print(f"[OCR] Vision OCR found: {len(results)} transactions")
     return results
 
 

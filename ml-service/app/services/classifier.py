@@ -9,6 +9,20 @@ Real machine learning pipeline using:
   - Weighted Multi-Feature Scoring             → financial health score
 """
 
+import sys
+import io
+
+if hasattr(sys.stdout, "buffer"):
+    try:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+if hasattr(sys.stderr, "buffer"):
+    try:
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
 from datetime import datetime
 from collections import defaultdict
 import re
@@ -19,11 +33,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
-
 import os
 import joblib
-import re
-import numpy as np
 
 # ─── New Rule-Based Keyword Dictionaries ──────────────────────────────────────
 KEYWORDS = {
@@ -152,13 +163,13 @@ class HybridClassifier:
             if os.path.exists(model_path) and os.path.exists(vec_path):
                 self.model = joblib.load(model_path)
                 self.vectorizer = joblib.load(vec_path)
-                print("[ML] 👍 Loaded retrained TF-IDF model from disk.")
+                print("[ML] OK: Loaded retrained TF-IDF model from disk.")
             else:
                 self.model = None
                 self.vectorizer = None
-                print("[ML] ⚠️ TF-IDF model not found — using pure rule-based classifier.")
+                print("[ML] Warning: TF-IDF model not found — using pure rule-based classifier.")
         except Exception as e:
-            print(f"[ML] ❌ Failed to load TF-IDF model: {e}")
+            print(f"[ML] Error: Failed to load TF-IDF model: {e}")
             self.model = None
             self.vectorizer = None
 

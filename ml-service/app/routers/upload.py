@@ -79,6 +79,9 @@ async def process_statement(file: UploadFile = File(...)):
             else:
                 logger.info("[UPLOAD] Detected: PhonePe / Standard PDF → using parser")
                 raw_transactions = _parse_statement(file_path)
+                if not raw_transactions or (isinstance(raw_transactions, list) and len(raw_transactions) == 0):
+                    logger.info("[UPLOAD] Parser returned 0 transactions → falling back to Multimodal / OCR extraction")
+                    raw_transactions = extract_transactions(file_path)
                 source = "phonepe"
 
         elif ext == ".csv":
@@ -92,14 +95,18 @@ async def process_statement(file: UploadFile = File(...)):
             source = "excel"
 
         else:
-            # Images — Vision OCR path
-            logger.info("[UPLOAD] Detected: %s image → using Vision OCR", ext)
+            # Images — Multimodal / OCR path
+            logger.info("[UPLOAD] Detected: %s image → using Multimodal / OCR", ext)
             raw_transactions = extract_transactions(file_path)
             source = ext.lstrip(".")
 
         # parse_statement() can return a dict with {"error": ...} on failure
         if isinstance(raw_transactions, dict) and "error" in raw_transactions:
-            raise HTTPException(status_code=422, detail=raw_transactions["error"])
+            # Try OCR before failing
+            logger.info("[UPLOAD] Parser error encountered → trying Multimodal / OCR extraction")
+            raw_transactions = extract_transactions(file_path)
+            if isinstance(raw_transactions, dict) and "error" in raw_transactions:
+                raise HTTPException(status_code=422, detail=raw_transactions["error"])
 
         logger.info("[UPLOAD] Extracted %d transactions from %s", len(raw_transactions), source)
 
