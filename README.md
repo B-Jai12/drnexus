@@ -1,15 +1,15 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,20,25,30&height=220&section=header&text=Dr.Nexus&fontSize=80&fontAlignY=38&desc=ML-Powered%20Financial%20Statement%20Intelligence%20%26%20Analytics%20Engine&descAlignY=60&animation=fadeIn&fontColor=ffffff" width="100%"/>
+
 
 <br/>
 
-[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
-[![Google Gemini](https://img.shields.io/badge/Google_Gemini-Recommendations-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[[FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[[Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
+[[Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[[TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
+[[Google Gemini](https://img.shields.io/badge/Google_Gemini-Recommendations-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev)
+[[Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 
 <br/>
 
@@ -18,7 +18,7 @@
 
 <br/>
 
-**[📊 System Overview](#-system-overview) &nbsp;•&nbsp; [⚙️ Three-Tier Architecture](#-three-tier-architecture) &nbsp;•&nbsp; [🔍 ML & OCR Pipeline](#-ml--ocr-pipeline) &nbsp;•&nbsp; [🚀 Quickstart](#-getting-started) &nbsp;•&nbsp; [🧪 Testing](#-testing)**
+**[System Overview](#-system-overview) &nbsp;•&nbsp; [Three-Tier Architecture](#-three-tier-architecture) &nbsp;•&nbsp; [ML & OCR Pipeline](#-ml--ocr-pipeline) &nbsp;•&nbsp; [Quickstart](#-getting-started) &nbsp;•&nbsp; [Testing](#-testing)**
 
 <br/>
 
@@ -26,7 +26,7 @@
 
 ---
 
-## 💡 The Financial Data Bottleneck
+##  The Financial Data Bottleneck
 
 Raw financial records from banks, UPI apps, and credit cards are fragmented:
 - **Disjointed Formats:** Statements come as scanned image PDFs, multi-page text PDFs, raw CSVs, or spreadsheet exports with inconsistent column structures.
@@ -37,7 +37,7 @@ Raw financial records from banks, UPI apps, and credit cards are fragmented:
 
 ---
 
-## ⚙️ Three-Tier Architecture
+##  Three-Tier Architecture
 
 Dr.Nexus is designed as a decoupled, microservice-style monorepo:
 
@@ -64,7 +64,7 @@ Dr.Nexus is designed as a decoupled, microservice-style monorepo:
 
 ---
 
-## 🔍 ML & OCR Pipeline
+##  ML & OCR Pipeline
 
 The intelligence core lives inside `ml-service/`:
 
@@ -80,7 +80,7 @@ The intelligence core lives inside `ml-service/`:
 
 ---
 
-## 📁 Repository Structure
+##  Repository Structure
 
 ```
 drnexus/
@@ -103,7 +103,7 @@ drnexus/
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Node.js 18+ and npm
@@ -171,7 +171,7 @@ npm run dev
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 A sample statement is included in the root directory for rapid testing:
 ```bash
@@ -181,7 +181,7 @@ test_statement.csv
 
 ---
 
-## 👤 Author
+##  Author
 
-**Jaideep Botla** ([@B-Jai12](https://github.com/B-Jai12))  
+**Jaideep Botla** ([B-Jai12](https://github.com/B-Jai12))  
 B.Tech AIML Student & Product Builder • Focused on real-world machine learning systems, data extraction pipelines, and full-stack software.
