@@ -183,5 +183,5 @@ test_statement.csv
 
 ##  Author
 
-**Jaideep Botla** ([B-Jai12](https://github.com/B-Jai12))  
+**Jaideep** ([B-Jai12](https://github.com/B-Jai12))  
 B.Tech AIML Student & Product Builder • Focused on real-world machine learning systems, data extraction pipelines, and full-stack software.
